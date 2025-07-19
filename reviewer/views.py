@@ -3,9 +3,9 @@ from django.shortcuts import render
 from django.conf import settings
 import os
 
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 def review_code(request):
+    openai.api_key = os.environ.get("OPENAI_API_KEY")
     if request.method == 'POST':
         code = request.POST.get('code', '')
         language = request.POST.get('language', 'python')
