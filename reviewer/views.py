@@ -1,8 +1,9 @@
 import openai
 from django.shortcuts import render
-from django.conf import settings
+from django.utils.safestring import mark_safe
+from .models import CodeReview
 import os
-
+import markdown
 
 def review_code(request):
     openai.api_key = os.environ.get("OPENAI_API_KEY")
@@ -20,6 +21,12 @@ def review_code(request):
         )
         
         review = response.choices[0].message.content
-        return render(request, 'reviewer/result.html', {'code': code, 'review': review})
+        
+        CodeReview.objects.create(code=code, language=language, review=review)
+        
+        review_html = markdown.markdown(review, extensions=['fenced_code'])
+        
+        return render(request, 'reviewer/result.html', {'code': code, 'review': mark_safe(review_html)})
     
     return render(request, 'reviewer/review.html')
+
